@@ -7,13 +7,43 @@ public class GameAttribute : MonoBehaviour {
     public float starterLife;
     public float speed;
 
+    [HideInInspector]
+    public float distance;
+    [HideInInspector]
+    public float life;
+    [HideInInspector]
+    public float level;
+    [HideInInspector]
+    public bool isPause;
+    [HideInInspector]
+    public bool isPlaying;
+
+    public static GameAttribute gameAttribute;
+
 	// Use this for initialization
 	void Start () {
+        gameAttribute = this;
+        // 加载新场景时不销毁
+        DontDestroyOnLoad(this);
+        StartCoroutine(initAttribute());
+    }
 	
+	void Reset () {
+        StartCoroutine(initAttribute());
 	}
-	
-	// Update is called once per frame
-	void Update () {
-	
-	}
+
+    // 初始化/重置游戏参数
+    private IEnumerator initAttribute() {
+        speed = starterSpeed;
+        distance = 0;
+        life = starterLife;
+        level = 0;
+        isPause = false;
+        isPlaying = true;
+        yield return 0;
+    }
+
+    public void countDistance(float amount) {
+        distance += amount * Time.smoothDeltaTime;
+    }
 }

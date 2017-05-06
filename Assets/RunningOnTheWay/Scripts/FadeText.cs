@@ -5,7 +5,7 @@ using UnityEngine.UI;
 public class FadeText : MonoBehaviour
 {
 
-    private float fadeSpeed = 2f;
+    private float fadeSpeed = 1.5f;
     private float allTime;
 
     // Use this for initialization
@@ -16,7 +16,7 @@ public class FadeText : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        allTime += fadeSpeed * Time.deltaTime;
-        GetComponent<Text>().color = new Color(0.5f, 0.5f, 0.5f, Mathf.Sin(allTime)*0.5f);
+        allTime += fadeSpeed * Time.smoothDeltaTime;
+        GetComponent<Text>().color = new Color(0.5f, 0.5f, 0.5f, (Mathf.Abs(Mathf.Sin(allTime)))*0.5f);
     }
 }

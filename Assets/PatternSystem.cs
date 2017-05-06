@@ -8,9 +8,11 @@ public class PatternSystem : MonoBehaviour {
     public GameObject spawnPref;
     public GameObject floorPref;
     public bool loadingComplete;
+
+    public static PatternSystem instance;
     // Use this for initialization
     void Start () {
-	
+        instance = this;
 	}
 	
 	// Update is called once per frame

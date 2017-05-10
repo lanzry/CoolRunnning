@@ -57,20 +57,31 @@ public class Controller : MonoBehaviour {
 
     private IEnumerator UpdateAction() {
         while (GameAttribute.gameAttribute.life > 0) {
-            if (GameAttribute.gameAttribute.isPause && GameAttribute.gameAttribute.isPlaying && PatternSystem.instance.loadingComplete) {
+            if (!GameAttribute.gameAttribute.isPause && GameAttribute.gameAttribute.isPlaying && PatternSystem.instance.loadingComplete) {
                 if (keyInput)
                     KeyInput();
 
                 if (touchInput)
                     DirectionAngleInput();
 
-
-            }
+                CheckLane();
+                MoveForward();
+            } else
+                GetComponent<Animation>().Stop();
+            yield return 0;
         }
 
-        yield return 0;
     }
 
+    private void MoveBack() {
+        float z = transform.position.z - 0.5f;
+        bool complete = false;
+        while (!complete) {
+            transform.position = Vector3.Lerp(transform.position, new Vector3(transform.position.x, transform.position.y, z), 2 * Time.deltaTime);
+        }
+    }
+
+    // 变换奔跑的行道
     private void CheckLane() {
         switch (positionStand) {
             case Position.MIDDLE:
@@ -90,7 +101,60 @@ public class Controller : MonoBehaviour {
                     SoundManager.instance.PlayingSound("Step");
                 }
                 break;
+            case Position.LEFT:
+                if (directionInput == DirectionInput.RIGHT) {
+                    if (characterController.isGrounded) {
+                        GetComponent<Animation>().Stop();
+                        animationManager.animationState = animationManager.TurnRight;
+                    }
+                    positionStand = Position.MIDDLE;
+                    SoundManager.instance.PlayingSound("Step");
+                }
+                break;
+            case Position.RIGHT:
+                if (directionInput == DirectionInput.LEFT) {
+                    if (characterController.isGrounded) {
+                        GetComponent<Animation>().Stop();
+                        animationManager.animationState = animationManager.TurnLeft;
+                    }
+                    positionStand = Position.MIDDLE;
+                    SoundManager.instance.PlayingSound("Step");
+                }
+                break;
         }
+    }
+
+    private Vector3 moveDector;
+    private void MoveForward() {
+        speedMove = GameAttribute.gameAttribute.speed;
+        if (characterController.isGrounded) {
+            moveDector = Vector3.zero;
+            if (directionInput == DirectionInput.UP) {
+                Jump();
+                if (isDoubleJump)
+                    jumpSecond = true;
+            }
+        } else {
+            if(directionInput == DirectionInput.UP) {
+                if (jumpSecond) {
+                    JumpSecond();
+                    jumpSecond = false;
+                }
+            }
+            if (directionInput == DirectionInput.DOWN)
+                QuickGround();
+
+            if (animationManager.animationState != animationManager.Jump
+                && animationManager.animationState != animationManager.JumpSecond
+                && animationManager.animationState != animationManager.Roll)
+                animationManager.animationState = animationManager.JumpLoop;
+        }
+
+        moveDector.z = 0;
+        moveDector += transform.TransformDirection(Vector3.forward * speedMove);
+        moveDector.y -= gravity * Time.deltaTime;
+
+        characterController.Move(moveDector * Time.deltaTime);
     }
 
     private void KeyInput() {
@@ -179,5 +243,21 @@ public class Controller : MonoBehaviour {
             directionInput = DirectionInput.NULL;
             activeInput = false;
         }
+    }
+
+    private void Jump() {
+        SoundManager.instance.PlayingSound("Jump");
+
+        animationManager.animationState = animationManager.Jump;
+        moveDector.y += jumpValue;
+    }
+
+    private void JumpSecond() {
+        animationManager.animationState =  animationManager.JumpSecond;
+        moveDector.y += jumpValue * 1.15f;
+    }
+
+    private void QuickGround() {
+        moveDector.y -= jumpValue * 3;
     }
 }

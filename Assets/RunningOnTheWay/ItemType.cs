@@ -2,5 +2,5 @@
 using System.Collections;
 
 public enum ItemType{
-    Null, Coin, Obstacle, ObstacleRoll, ItemJump, ItemSprint, ItemMagnet, ItemMultiply
+    NULL, COIN, OBSTACLE, OBSTACLE_ROLL, ITEM_JUMP, ITEM_SPRINT, ITEM_MAGNET, ITEM_MULTIPLY
 }

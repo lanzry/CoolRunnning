@@ -22,7 +22,18 @@ public class Controller : MonoBehaviour {
     public bool touchInput;
 
     [HideInInspector]
+    public float timeSprint;        // 超速时间
+    [HideInInspector]
+    public float timeMagnet;    // 磁铁时间
+    [HideInInspector]
+    public float timeMultiply;  // 双倍积分时间
+    [HideInInspector]
+    public float timeJumpSecond;    // 二次跳跃时间
+
+    [HideInInspector]
     public bool isRoll;
+    [HideInInspector]
+    public bool isCoinMultiply;
     [HideInInspector]
     public bool isDoubleJump;
     [HideInInspector]
@@ -45,9 +56,15 @@ public class Controller : MonoBehaviour {
         magnet.SetActive(false);
         Invoke("WaitStart", 0.2f);
 	}
-	
-	// Update is called once per frame
-	void Update () {
+
+    private void OnTriggerEnter(Collider other) {
+        if (other.tag.Equals("Item"))
+            if (other.GetComponent<Item>().useAbsorb) {
+            }
+    }
+
+    // Update is called once per frame
+    void Update () {
 
 	}
 
@@ -70,15 +87,21 @@ public class Controller : MonoBehaviour {
                 GetComponent<Animation>().Stop();
             yield return 0;
         }
-
+        StartCoroutine(MoveBack());
+        animationManager.animationState = animationManager.Dead;
+        GameController.instance.StartCoroutine(GameController.instance.ResetGame());
     }
 
-    private void MoveBack() {
+    IEnumerator MoveBack() {
         float z = transform.position.z - 0.5f;
         bool complete = false;
         while (!complete) {
             transform.position = Vector3.Lerp(transform.position, new Vector3(transform.position.x, transform.position.y, z), 2 * Time.deltaTime);
+            if (transform.position.z - z < 0.05f)
+                complete = true;
+            yield return 0;
         }
+        yield return 0;
     }
 
     // 变换奔跑的行道
@@ -259,5 +282,28 @@ public class Controller : MonoBehaviour {
 
     private void QuickGround() {
         moveDector.y -= jumpValue * 3;
+    }
+
+    // 超速
+    private void Sprint(float speed, float time) {
+        StopCoroutine(CancelSprint());
+        GameAttribute.gameAttribute.speed = speed;
+        timeSprint = time;
+        StartCoroutine(CancelSprint());
+    }
+
+    // 消耗超速状态
+    IEnumerator CancelSprint() {
+        while (timeSprint > 0) {
+            timeSprint -= Time.deltaTime;
+            yield return 0;
+        }
+        // 速度变回超速前的速度
+        int i = 0;
+        GameAttribute.gameAttribute.speed = GameAttribute.gameAttribute.starterSpeed;
+        while (i < GameController.instance.countAndSpeed) {
+            GameAttribute.gameAttribute.speed += GameController.instance.speedAdd;
+            i++;
+        }
     }
 }

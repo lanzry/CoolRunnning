@@ -12,11 +12,18 @@ public class GameAttribute : MonoBehaviour {
     [HideInInspector]
     public float life;
     [HideInInspector]
+    public float coin;
+    [HideInInspector]
     public float level;
     [HideInInspector]
     public bool isPause;
     [HideInInspector]
     public bool isPlaying;
+
+    [HideInInspector]
+    public bool delayDetect;        //延迟检测
+    [HideInInspector]
+    public float coinMultiplyValue;     // 金币倍数
 
     public static GameAttribute gameAttribute;
 

@@ -62,7 +62,7 @@ public class CameraFollow : MonoBehaviour
     }
 
     // 晃动摄像机
-    public void shakeCamrea()
+    public void ShakeCamrea()
     {
         isShake = true;
         StartCoroutine(doShake());
